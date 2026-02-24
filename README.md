@@ -3,109 +3,73 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>EcoPrint</title>
-
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<title>EcoPrint - Agendamento de Impressões</title>
 
 <style>
-:root{
---verde:#0e8f61;
---verde-claro:#14b77a;
---bg:#f5f7f6;
---dark:#121212;
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: linear-gradient(135deg, #0f2027, #2c5364);
+    color: white;
 }
 
-body{
-margin:0;
-font-family:Arial, sans-serif;
-background:var(--bg);
+header {
+    text-align: center;
+    padding: 30px;
+    background: rgba(0,0,0,0.4);
 }
 
-header{
-background:var(--verde);
-color:white;
-padding:15px;
-display:flex;
-justify-content:space-between;
-align-items:center;
+header h1 {
+    margin: 0;
+    font-size: 40px;
+    color: #00ffcc;
 }
 
-h1{
-font-size:20px;
-margin:0;
+.container {
+    max-width: 800px;
+    margin: 30px auto;
+    background: white;
+    color: black;
+    padding: 30px;
+    border-radius: 15px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.5);
 }
 
-.menu{
-font-size:22px;
-cursor:pointer;
+input, select, button {
+    width: 100%;
+    padding: 12px;
+    margin-top: 10px;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    font-size: 16px;
 }
 
-.container{
-padding:15px;
+button {
+    background: #00b894;
+    color: white;
+    border: none;
+    cursor: pointer;
+    font-weight: bold;
 }
 
-.card{
-background:white;
-padding:15px;
-border-radius:12px;
-box-shadow:0 4px 10px rgba(0,0,0,0.05);
-margin-bottom:15px;
+button:hover {
+    background: #019875;
 }
 
-input,select{
-width:100%;
-padding:12px;
-margin-top:10px;
-border-radius:8px;
-border:1px solid #ddd;
-font-size:16px;
+.agendamentos {
+    margin-top: 30px;
 }
 
-button{
-width:100%;
-padding:14px;
-margin-top:15px;
-border:none;
-border-radius:8px;
-background:var(--verde);
-color:white;
-font-size:16px;
-font-weight:bold;
+.agendamento-item {
+    background: #f1f1f1;
+    padding: 15px;
+    border-radius: 10px;
+    margin-top: 10px;
 }
 
-button:hover{
-background:var(--verde-claro);
-}
-
-#menuPlano{
-display:none;
-position:fixed;
-top:0;
-right:0;
-width:80%;
-height:100%;
-background:white;
-box-shadow:-3px 0 10px rgba(0,0,0,0.2);
-padding:20px;
-}
-
-.progress{
-height:6px;
-background:#ddd;
-border-radius:10px;
-margin-bottom:15px;
-}
-
-.bar{
-height:100%;
-width:33%;
-background:var(--verde);
-border-radius:10px;
-transition:0.3s;
-}
-
-canvas{
-margin-top:20px;
+.cancelar {
+    background: red;
+    margin-top: 10px;
 }
 </style>
 </head>
@@ -113,117 +77,90 @@ margin-top:20px;
 <body>
 
 <header>
-<h1>EcoPrint 🌱</h1>
-<div class="menu" onclick="abrirMenu()">⋮</div>
+    <h1>EcoPrint</h1>
+    <p>Agende a impressão do seu trabalho de forma rápida e ecológica 🌱</p>
 </header>
 
-<div id="menuPlano">
-<h3>Plano Universitário</h3>
-<p><strong>1000 páginas/mês</strong></p>
-<p>20.000 AOA</p>
-<button onclick="fecharMenu()">Fechar</button>
-</div>
-
 <div class="container">
+    <h2>Agendar Impressão</h2>
 
-<div class="progress">
-<div class="bar" id="barra"></div>
-</div>
+    <input type="text" id="nome" placeholder="Seu Nome" required>
+    <input type="email" id="email" placeholder="Seu Email" required>
+    
+    <select id="tipo">
+        <option value="">Tipo de Impressão</option>
+        <option>Preto e Branco</option>
+        <option>Colorida</option>
+    </select>
 
-<div class="card">
-<input type="text" id="nome" placeholder="Seu Nome">
-<input type="text" id="telefone" placeholder="Número do Responsável">
-<input type="number" id="paginas" placeholder="Número de Páginas">
-<select id="tipo">
-<option value="25">Preto e Branco (25 AOA)</option>
-<option value="50">Colorido (50 AOA)</option>
-</select>
-<select id="pagamento">
-<option>Multicaixa Express</option>
-<option>Transferência</option>
-<option>Pagar na Retirada</option>
-</select>
+    <input type="number" id="paginas" placeholder="Número de Páginas">
+    <input type="date" id="data">
+    <input type="time" id="hora">
 
-<h3 id="total">Total: 0 AOA</h3>
-<p id="eco"></p>
+    <button onclick="agendar()">Agendar Impressão</button>
 
-<button onclick="confirmar()">Confirmar Pedido</button>
-</div>
-
-<div class="card">
-<h3>Painel Administrativo</h3>
-<button onclick="analytics()">Ver Dados</button>
-<canvas id="grafico"></canvas>
-</div>
-
+    <div class="agendamentos">
+        <h2>Agendamentos Marcados</h2>
+        <div id="lista"></div>
+    </div>
 </div>
 
 <script>
+function carregarAgendamentos() {
+    const lista = document.getElementById("lista");
+    lista.innerHTML = "";
 
-/* MENU */
-function abrirMenu(){
-document.getElementById("menuPlano").style.display="block";
-}
-function fecharMenu(){
-document.getElementById("menuPlano").style.display="none";
-}
+    const agendamentos = JSON.parse(localStorage.getItem("ecoprint")) || [];
 
-/* CÁLCULO AUTOMÁTICO */
-document.getElementById("paginas").addEventListener("input",calcular);
-document.getElementById("tipo").addEventListener("change",calcular);
-
-function calcular(){
-let tipo=parseInt(document.getElementById("tipo").value);
-let paginas=parseInt(document.getElementById("paginas").value)||0;
-let total=tipo*paginas;
-
-document.getElementById("total").innerText="Total: "+total+" AOA";
-
-/* Sugestão ecológica */
-if(paginas>40){
-let economia=total*0.3;
-document.getElementById("eco").innerText=
-"💡 Frente e verso economiza 30% ("+economia.toFixed(0)+" AOA)";
-}else{
-document.getElementById("eco").innerText="";
-}
+    agendamentos.forEach((ag, index) => {
+        lista.innerHTML += `
+            <div class="agendamento-item">
+                <strong>${ag.nome}</strong><br>
+                Email: ${ag.email}<br>
+                Tipo: ${ag.tipo}<br>
+                Páginas: ${ag.paginas}<br>
+                Data: ${ag.data} às ${ag.hora}<br>
+                <button class="cancelar" onclick="cancelar(${index})">Cancelar</button>
+            </div>
+        `;
+    });
 }
 
-/* CONFIRMAR */
-function confirmar(){
-let total=document.getElementById("total").innerText;
-let paginas=document.getElementById("paginas").value;
+function agendar() {
+    const nome = document.getElementById("nome").value;
+    const email = document.getElementById("email").value;
+    const tipo = document.getElementById("tipo").value;
+    const paginas = document.getElementById("paginas").value;
+    const data = document.getElementById("data").value;
+    const hora = document.getElementById("hora").value;
 
-let pedidos=JSON.parse(localStorage.getItem("ecoMobile"))||[];
-pedidos.push({total,paginas});
-localStorage.setItem("ecoMobile",JSON.stringify(pedidos));
+    if (!nome || !email || !tipo || !paginas || !data || !hora) {
+        alert("Preencha todos os campos!");
+        return;
+    }
 
-alert("Pedido enviado com sucesso 🌱");
+    const novoAgendamento = { nome, email, tipo, paginas, data, hora };
+
+    const agendamentos = JSON.parse(localStorage.getItem("ecoprint")) || [];
+    agendamentos.push(novoAgendamento);
+
+    localStorage.setItem("ecoprint", JSON.stringify(agendamentos));
+
+    alert("Agendamento realizado com sucesso!");
+
+    document.querySelectorAll("input, select").forEach(el => el.value = "");
+
+    carregarAgendamentos();
 }
 
-/* ANALYTICS */
-function analytics(){
-let pedidos=JSON.parse(localStorage.getItem("ecoMobile"))||[];
-let faturamento=0;
-let paginasTotal=0;
-
-pedidos.forEach(p=>{
-faturamento+=parseInt(p.total.replace(/\D/g,''))||0;
-paginasTotal+=parseInt(p.paginas)||0;
-});
-
-new Chart(document.getElementById("grafico"),{
-type:"bar",
-data:{
-labels:["Faturamento","Páginas Impressas"],
-datasets:[{
-data:[faturamento,paginasTotal],
-backgroundColor:["#0e8f61","#14b77a"]
-}]
-}
-});
+function cancelar(index) {
+    const agendamentos = JSON.parse(localStorage.getItem("ecoprint"));
+    agendamentos.splice(index, 1);
+    localStorage.setItem("ecoprint", JSON.stringify(agendamentos));
+    carregarAgendamentos();
 }
 
+carregarAgendamentos();
 </script>
 
 </body>
