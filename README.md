@@ -3,164 +3,249 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>EcoPrint - Agendamento de Impressões</title>
+<title>EcoPrint</title>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
 <style>
-body {
-    margin: 0;
-    font-family: Arial, sans-serif;
-    background: linear-gradient(135deg, #0f2027, #2c5364);
-    color: white;
+:root{
+--verde:#0e8f61;
+--bg-light:#f2f2f2;
+--bg-dark:#121212;
+--card-light:#ffffff;
+--card-dark:#1e1e1e;
+--text-light:#000;
+--text-dark:#fff;
 }
 
-header {
-    text-align: center;
-    padding: 30px;
-    background: rgba(0,0,0,0.4);
+body{
+margin:0;
+font-family:Arial, sans-serif;
+background:var(--bg-light);
+color:var(--text-light);
+display:flex;
+justify-content:center;
 }
 
-header h1 {
-    margin: 0;
-    font-size: 40px;
-    color: #00ffcc;
+.app{
+width:100%;
+max-width:420px;
+min-height:100vh;
+background:inherit;
+position:relative;
 }
 
-.container {
-    max-width: 800px;
-    margin: 30px auto;
-    background: white;
-    color: black;
-    padding: 30px;
-    border-radius: 15px;
-    box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+header{
+background:var(--verde);
+color:white;
+padding:15px;
+display:flex;
+justify-content:space-between;
+align-items:center;
 }
 
-input, select, button {
-    width: 100%;
-    padding: 12px;
-    margin-top: 10px;
-    border-radius: 8px;
-    border: 1px solid #ccc;
-    font-size: 16px;
+h1{
+font-size:18px;
+margin:0;
 }
 
-button {
-    background: #00b894;
-    color: white;
-    border: none;
-    cursor: pointer;
-    font-weight: bold;
+.container{
+padding:15px;
 }
 
-button:hover {
-    background: #019875;
+.card{
+background:var(--card-light);
+padding:15px;
+border-radius:12px;
+margin-bottom:15px;
+box-shadow:0 4px 8px rgba(0,0,0,0.05);
 }
 
-.agendamentos {
-    margin-top: 30px;
+input,select,textarea{
+width:100%;
+padding:12px;
+margin-top:10px;
+border-radius:8px;
+border:1px solid #ddd;
+font-size:15px;
 }
 
-.agendamento-item {
-    background: #f1f1f1;
-    padding: 15px;
-    border-radius: 10px;
-    margin-top: 10px;
+button{
+width:100%;
+padding:14px;
+margin-top:15px;
+border:none;
+border-radius:8px;
+background:var(--verde);
+color:white;
+font-size:16px;
+font-weight:bold;
 }
 
-.cancelar {
-    background: red;
-    margin-top: 10px;
+#total{
+margin-top:10px;
+font-weight:bold;
 }
+
+.dark{
+background:var(--bg-dark);
+color:var(--text-dark);
+}
+
+.dark .card{
+background:var(--card-dark);
+}
+
+.toggleMode{
+position:fixed;
+bottom:20px;
+right:20px;
+width:55px;
+height:55px;
+border-radius:50%;
+background:var(--verde);
+color:white;
+display:flex;
+justify-content:center;
+align-items:center;
+font-size:20px;
+cursor:pointer;
+box-shadow:0 4px 10px rgba(0,0,0,0.3);
+}
+
+/* ECOIA */
+.ecoia{
+position:absolute;
+top:15px;
+right:15px;
+width:45px;
+height:45px;
+border-radius:50%;
+background:white;
+display:flex;
+justify-content:center;
+align-items:center;
+cursor:pointer;
+font-size:12px;
+font-weight:bold;
+color:#0e8f61;
+}
+
+.chat{
+display:none;
+position:fixed;
+bottom:90px;
+right:20px;
+width:280px;
+background:white;
+border-radius:12px;
+box-shadow:0 4px 10px rgba(0,0,0,0.3);
+padding:10px;
+}
+
+.chat textarea{
+height:70px;
+}
+
 </style>
 </head>
 
 <body>
 
+<div class="app">
+
 <header>
-    <h1>EcoPrint</h1>
-    <p>Agende a impressão do seu trabalho de forma rápida e ecológica 🌱</p>
+<h1>EcoPrint 🌱</h1>
+<div class="ecoia" onclick="abrirIA()">EcoIA</div>
 </header>
 
 <div class="container">
-    <h2>Agendar Impressão</h2>
 
-    <input type="text" id="nome" placeholder="Seu Nome" required>
-    <input type="email" id="email" placeholder="Seu Email" required>
-    
-    <select id="tipo">
-        <option value="">Tipo de Impressão</option>
-        <option>Preto e Branco</option>
-        <option>Colorida</option>
-    </select>
+<div class="card">
+<h3>Agendamento</h3>
 
-    <input type="number" id="paginas" placeholder="Número de Páginas">
-    <input type="date" id="data">
-    <input type="time" id="hora">
+<input type="text" id="nome" placeholder="Seu Nome">
+<input type="number" id="paginas" placeholder="Número de Páginas">
+<select id="tipo">
+<option value="25">Preto e Branco (25 AOA)</option>
+<option value="50">Colorido (50 AOA)</option>
+</select>
 
-    <button onclick="agendar()">Agendar Impressão</button>
+<input type="date" id="data">
+<input type="time" id="hora">
 
-    <div class="agendamentos">
-        <h2>Agendamentos Marcados</h2>
-        <div id="lista"></div>
-    </div>
+<h3 id="total">Total: 0 AOA</h3>
+
+<button onclick="confirmar()">Confirmar Pedido</button>
+</div>
+
+</div>
+
+</div>
+
+<div class="toggleMode" onclick="toggleMode()">☀️</div>
+
+<!-- CHAT IA -->
+<div class="chat" id="chatBox">
+<textarea id="textoIA" placeholder="Escreva o trabalho..."></textarea>
+<button onclick="responderIA()">Gerar PDF</button>
 </div>
 
 <script>
-function carregarAgendamentos() {
-    const lista = document.getElementById("lista");
-    lista.innerHTML = "";
 
-    const agendamentos = JSON.parse(localStorage.getItem("ecoprint")) || [];
+const { jsPDF } = window.jspdf;
 
-    agendamentos.forEach((ag, index) => {
-        lista.innerHTML += `
-            <div class="agendamento-item">
-                <strong>${ag.nome}</strong><br>
-                Email: ${ag.email}<br>
-                Tipo: ${ag.tipo}<br>
-                Páginas: ${ag.paginas}<br>
-                Data: ${ag.data} às ${ag.hora}<br>
-                <button class="cancelar" onclick="cancelar(${index})">Cancelar</button>
-            </div>
-        `;
-    });
+/* CÁLCULO AUTOMÁTICO */
+document.getElementById("paginas").addEventListener("input",calcular);
+document.getElementById("tipo").addEventListener("change",calcular);
+
+function calcular(){
+let tipo=parseInt(document.getElementById("tipo").value);
+let paginas=parseInt(document.getElementById("paginas").value)||0;
+let total=tipo*paginas;
+document.getElementById("total").innerText="Total: "+total+" AOA";
 }
 
-function agendar() {
-    const nome = document.getElementById("nome").value;
-    const email = document.getElementById("email").value;
-    const tipo = document.getElementById("tipo").value;
-    const paginas = document.getElementById("paginas").value;
-    const data = document.getElementById("data").value;
-    const hora = document.getElementById("hora").value;
+/* CONFIRMAR */
+function confirmar(){
+let nome=document.getElementById("nome").value;
+let data=document.getElementById("data").value;
+let hora=document.getElementById("hora").value;
+let total=document.getElementById("total").innerText;
 
-    if (!nome || !email || !tipo || !paginas || !data || !hora) {
-        alert("Preencha todos os campos!");
-        return;
-    }
-
-    const novoAgendamento = { nome, email, tipo, paginas, data, hora };
-
-    const agendamentos = JSON.parse(localStorage.getItem("ecoprint")) || [];
-    agendamentos.push(novoAgendamento);
-
-    localStorage.setItem("ecoprint", JSON.stringify(agendamentos));
-
-    alert("Agendamento realizado com sucesso!");
-
-    document.querySelectorAll("input, select").forEach(el => el.value = "");
-
-    carregarAgendamentos();
+if(!nome||!data||!hora){
+alert("Preencha todos os campos.");
+return;
 }
 
-function cancelar(index) {
-    const agendamentos = JSON.parse(localStorage.getItem("ecoprint"));
-    agendamentos.splice(index, 1);
-    localStorage.setItem("ecoprint", JSON.stringify(agendamentos));
-    carregarAgendamentos();
+alert("Agendado para "+data+" às "+hora+" ✅");
 }
 
-carregarAgendamentos();
+/* DARK MODE */
+function toggleMode(){
+document.body.classList.toggle("dark");
+}
+
+/* ECOIA */
+function abrirIA(){
+let chat=document.getElementById("chatBox");
+chat.style.display = chat.style.display==="block"?"none":"block";
+}
+
+/* IA SIMPLES */
+function responderIA(){
+let texto=document.getElementById("textoIA").value;
+
+if(texto.trim()===""){
+alert("Digite o conteúdo.");
+return;
+}
+
+let doc=new jsPDF();
+doc.text(texto,10,10);
+doc.save("trabalho_ecoprint.pdf");
+}
+
 </script>
 
 </body>
