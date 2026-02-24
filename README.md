@@ -1,82 +1,229 @@
 <!DOCTYPE html>
-<html lang="pt-ao">
+<html lang="pt">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EcoPrint - Revolução Sustentável</title>
-    <style>
-        :root { --primary: #00b894; --dark: #1e272e; --gray: #f4f7f6; }
-        body { font-family: 'Segoe UI', sans-serif; background: var(--gray); margin: 0; padding: 20px; color: var(--dark); }
-        .container { max-width: 500px; background: white; padding: 25px; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); margin: auto; }
-        .header { text-align: center; border-bottom: 2px solid var(--primary); margin-bottom: 20px; }
-        .step { display: none; } .step.active { display: block; }
-        input, select { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; }
-        button { width: 100%; padding: 15px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; transition: 0.3s; }
-        .btn-next { background: var(--primary); color: white; margin-top: 10px; }
-        .eco-badge { background: #e8f8f5; color: #009432; padding: 15px; border-radius: 8px; font-size: 0.9em; margin: 15px 0; border-left: 5px solid var(--primary); }
-        .price-tag { font-size: 1.2em; font-weight: bold; color: var(--primary); text-align: center; display: block; }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EcoPrint</title>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<style>
+:root{
+--verde:#0e8f61;
+--verde-claro:#14b77a;
+--bg:#f5f7f6;
+--dark:#121212;
+}
+
+body{
+margin:0;
+font-family:Arial, sans-serif;
+background:var(--bg);
+}
+
+header{
+background:var(--verde);
+color:white;
+padding:15px;
+display:flex;
+justify-content:space-between;
+align-items:center;
+}
+
+h1{
+font-size:20px;
+margin:0;
+}
+
+.menu{
+font-size:22px;
+cursor:pointer;
+}
+
+.container{
+padding:15px;
+}
+
+.card{
+background:white;
+padding:15px;
+border-radius:12px;
+box-shadow:0 4px 10px rgba(0,0,0,0.05);
+margin-bottom:15px;
+}
+
+input,select{
+width:100%;
+padding:12px;
+margin-top:10px;
+border-radius:8px;
+border:1px solid #ddd;
+font-size:16px;
+}
+
+button{
+width:100%;
+padding:14px;
+margin-top:15px;
+border:none;
+border-radius:8px;
+background:var(--verde);
+color:white;
+font-size:16px;
+font-weight:bold;
+}
+
+button:hover{
+background:var(--verde-claro);
+}
+
+#menuPlano{
+display:none;
+position:fixed;
+top:0;
+right:0;
+width:80%;
+height:100%;
+background:white;
+box-shadow:-3px 0 10px rgba(0,0,0,0.2);
+padding:20px;
+}
+
+.progress{
+height:6px;
+background:#ddd;
+border-radius:10px;
+margin-bottom:15px;
+}
+
+.bar{
+height:100%;
+width:33%;
+background:var(--verde);
+border-radius:10px;
+transition:0.3s;
+}
+
+canvas{
+margin-top:20px;
+}
+</style>
 </head>
+
 <body>
 
+<header>
+<h1>EcoPrint 🌱</h1>
+<div class="menu" onclick="abrirMenu()">⋮</div>
+</header>
+
+<div id="menuPlano">
+<h3>Plano Universitário</h3>
+<p><strong>1000 páginas/mês</strong></p>
+<p>20.000 AOA</p>
+<button onclick="fecharMenu()">Fechar</button>
+</div>
+
 <div class="container">
-    <div class="header">
-        <h2 style="color: var(--primary);">EcoPrint 🌿</h2>
-        <p>Impressão Inteligente e Sustentável</p>
-    </div>
 
-    <div class="step active" id="step1">
-        <input type="text" placeholder="Nome do Cliente">
-        <input type="tel" placeholder="Telemóvel (Ex: 923000000)">
-        <select id="plano">
-            <option value="avulso">Pedido Avulso</option>
-            <option value="student">Plano Eco-Student (Assinatura)</option>
-        </select>
-        <button class="btn-next" onclick="nextStep(2)">Próximo: Detalhes da Impressão</button>
-    </div>
+<div class="progress">
+<div class="bar" id="barra"></div>
+</div>
 
-    <div class="step" id="step2">
-        <input type="number" id="paginas" placeholder="Número de Páginas" oninput="calc()">
-        <select id="tipo" onchange="calc()">
-            <option value="10">Preto e Branco (Econômico)</option>
-            <option value="50">Colorido Premium</option>
-        </select>
-        <input type="file" id="fileInput">
-        
-        <div class="eco-badge" id="ecoInfo">
-            Sua impressão economizará <b>0 litros</b> de água.
-        </div>
-        
-        <span class="price-tag" id="totalDisplay">Total: 0 Kz</span>
-        <button class="btn-next" onclick="nextStep(3)">Próximo: Pagamento</button>
-    </div>
+<div class="card">
+<input type="text" id="nome" placeholder="Seu Nome">
+<input type="text" id="telefone" placeholder="Número do Responsável">
+<input type="number" id="paginas" placeholder="Número de Páginas">
+<select id="tipo">
+<option value="25">Preto e Branco (25 AOA)</option>
+<option value="50">Colorido (50 AOA)</option>
+</select>
+<select id="pagamento">
+<option>Multicaixa Express</option>
+<option>Transferência</option>
+<option>Pagar na Retirada</option>
+</select>
 
-    <div class="step" id="step3">
-        <p>Selecione o Método:</p>
-        <button style="background: #0984e3; color: white; margin-bottom: 10px;">Pagar via Referência/App</button>
-        <button style="background: #2d3436; color: white;">Pagar na Retirada (QR-Code)</button>
-        <button class="btn-next" style="background: #ccc;" onclick="nextStep(1)">Voltar</button>
-    </div>
+<h3 id="total">Total: 0 AOA</h3>
+<p id="eco"></p>
+
+<button onclick="confirmar()">Confirmar Pedido</button>
+</div>
+
+<div class="card">
+<h3>Painel Administrativo</h3>
+<button onclick="analytics()">Ver Dados</button>
+<canvas id="grafico"></canvas>
+</div>
+
 </div>
 
 <script>
-    function nextStep(s) {
-        document.querySelectorAll('.step').forEach(el => el.classList.remove('active'));
-        document.getElementById('step' + s).classList.add('active');
-    }
 
-    function calc() {
-        const pags = document.getElementById('paginas').value || 0;
-        const preco = document.getElementById('tipo').value;
-        const plano = document.getElementById('plano').value;
-        
-        let total = pags * preco;
-        if(plano === 'student') total *= 0.8; // 20% de desconto na assinatura
+/* MENU */
+function abrirMenu(){
+document.getElementById("menuPlano").style.display="block";
+}
+function fecharMenu(){
+document.getElementById("menuPlano").style.display="none";
+}
 
-        document.getElementById('totalDisplay').innerText = `Total: ${total.toFixed(2)} Kz`;
-        // Lógica Revolucionária: Cada folha poupa aprox 0.5L de água no processo EcoPrint
-        document.getElementById('ecoInfo').innerHTML = `Sua impressão poupará <b>${(pags * 0.5).toFixed(1)} litros</b> de água comparado ao processo comum.`;
-    }
+/* CÁLCULO AUTOMÁTICO */
+document.getElementById("paginas").addEventListener("input",calcular);
+document.getElementById("tipo").addEventListener("change",calcular);
+
+function calcular(){
+let tipo=parseInt(document.getElementById("tipo").value);
+let paginas=parseInt(document.getElementById("paginas").value)||0;
+let total=tipo*paginas;
+
+document.getElementById("total").innerText="Total: "+total+" AOA";
+
+/* Sugestão ecológica */
+if(paginas>40){
+let economia=total*0.3;
+document.getElementById("eco").innerText=
+"💡 Frente e verso economiza 30% ("+economia.toFixed(0)+" AOA)";
+}else{
+document.getElementById("eco").innerText="";
+}
+}
+
+/* CONFIRMAR */
+function confirmar(){
+let total=document.getElementById("total").innerText;
+let paginas=document.getElementById("paginas").value;
+
+let pedidos=JSON.parse(localStorage.getItem("ecoMobile"))||[];
+pedidos.push({total,paginas});
+localStorage.setItem("ecoMobile",JSON.stringify(pedidos));
+
+alert("Pedido enviado com sucesso 🌱");
+}
+
+/* ANALYTICS */
+function analytics(){
+let pedidos=JSON.parse(localStorage.getItem("ecoMobile"))||[];
+let faturamento=0;
+let paginasTotal=0;
+
+pedidos.forEach(p=>{
+faturamento+=parseInt(p.total.replace(/\D/g,''))||0;
+paginasTotal+=parseInt(p.paginas)||0;
+});
+
+new Chart(document.getElementById("grafico"),{
+type:"bar",
+data:{
+labels:["Faturamento","Páginas Impressas"],
+datasets:[{
+data:[faturamento,paginasTotal],
+backgroundColor:["#0e8f61","#14b77a"]
+}]
+}
+});
+}
+
 </script>
 
 </body>
