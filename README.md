@@ -2,15 +2,27 @@
 <html lang="pt">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>EcoPrint</title>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
 <style>
+*{
+box-sizing:border-box;
+margin:0;
+padding:0;
+}
+
+html,body{
+width:100%;
+overflow-x:hidden;
+font-family:Arial, sans-serif;
+}
+
 :root{
 --verde:#0e8f61;
---bg-light:#f2f2f2;
+--bg-light:#f4f4f4;
 --bg-dark:#121212;
 --card-light:#ffffff;
 --card-dark:#1e1e1e;
@@ -19,8 +31,6 @@
 }
 
 body{
-margin:0;
-font-family:Arial, sans-serif;
 background:var(--bg-light);
 color:var(--text-light);
 display:flex;
@@ -31,7 +41,6 @@ justify-content:center;
 width:100%;
 max-width:420px;
 min-height:100vh;
-background:inherit;
 position:relative;
 }
 
@@ -42,11 +51,17 @@ padding:15px;
 display:flex;
 justify-content:space-between;
 align-items:center;
+flex-direction:column;
+text-align:center;
 }
 
-h1{
-font-size:18px;
-margin:0;
+header h1{
+font-size:20px;
+}
+
+#dataHora{
+font-size:13px;
+margin-top:5px;
 }
 
 .container{
@@ -87,6 +102,7 @@ margin-top:10px;
 font-weight:bold;
 }
 
+/* DARK MODE */
 .dark{
 background:var(--bg-dark);
 color:var(--text-dark);
@@ -96,6 +112,7 @@ color:var(--text-dark);
 background:var(--card-dark);
 }
 
+/* BOTÃO DARK */
 .toggleMode{
 position:fixed;
 bottom:20px;
@@ -118,17 +135,18 @@ box-shadow:0 4px 10px rgba(0,0,0,0.3);
 position:absolute;
 top:15px;
 right:15px;
-width:45px;
-height:45px;
+width:50px;
+height:50px;
 border-radius:50%;
 background:white;
 display:flex;
 justify-content:center;
 align-items:center;
 cursor:pointer;
-font-size:12px;
+font-size:11px;
 font-weight:bold;
 color:#0e8f61;
+box-shadow:0 4px 8px rgba(0,0,0,0.2);
 }
 
 .chat{
@@ -136,7 +154,8 @@ display:none;
 position:fixed;
 bottom:90px;
 right:20px;
-width:280px;
+width:300px;
+max-width:90%;
 background:white;
 border-radius:12px;
 box-shadow:0 4px 10px rgba(0,0,0,0.3);
@@ -144,9 +163,8 @@ padding:10px;
 }
 
 .chat textarea{
-height:70px;
+height:80px;
 }
-
 </style>
 </head>
 
@@ -156,6 +174,7 @@ height:70px;
 
 <header>
 <h1>EcoPrint 🌱</h1>
+<div id="dataHora"></div>
 <div class="ecoia" onclick="abrirIA()">EcoIA</div>
 </header>
 
@@ -183,19 +202,34 @@ height:70px;
 
 </div>
 
-<div class="toggleMode" onclick="toggleMode()">☀️</div>
+<div class="toggleMode" onclick="toggleMode()">🌙</div>
 
 <!-- CHAT IA -->
 <div class="chat" id="chatBox">
-<textarea id="textoIA" placeholder="Escreva o trabalho..."></textarea>
-<button onclick="responderIA()">Gerar PDF</button>
+<textarea id="textoIA" placeholder="Faça uma pergunta ou escreva seu trabalho..."></textarea>
+<button onclick="responderIA()">Perguntar à EcoIA</button>
 </div>
 
 <script>
-
 const { jsPDF } = window.jspdf;
 
-/* CÁLCULO AUTOMÁTICO */
+/* DATA E HORA */
+function atualizarDataHora(){
+let agora=new Date();
+let texto=agora.toLocaleString('pt-PT',{
+day:'2-digit',
+month:'2-digit',
+year:'numeric',
+hour:'2-digit',
+minute:'2-digit',
+second:'2-digit'
+});
+document.getElementById("dataHora").innerText=texto;
+}
+setInterval(atualizarDataHora,1000);
+atualizarDataHora();
+
+/* CÁLCULO */
 document.getElementById("paginas").addEventListener("input",calcular);
 document.getElementById("tipo").addEventListener("change",calcular);
 
@@ -208,17 +242,7 @@ document.getElementById("total").innerText="Total: "+total+" AOA";
 
 /* CONFIRMAR */
 function confirmar(){
-let nome=document.getElementById("nome").value;
-let data=document.getElementById("data").value;
-let hora=document.getElementById("hora").value;
-let total=document.getElementById("total").innerText;
-
-if(!nome||!data||!hora){
-alert("Preencha todos os campos.");
-return;
-}
-
-alert("Agendado para "+data+" às "+hora+" ✅");
+alert("Agendamento confirmado ✅");
 }
 
 /* DARK MODE */
@@ -232,20 +256,34 @@ let chat=document.getElementById("chatBox");
 chat.style.display = chat.style.display==="block"?"none":"block";
 }
 
-/* IA SIMPLES */
+/* IA SIMULADA INTELIGENTE */
 function responderIA(){
-let texto=document.getElementById("textoIA").value;
+let texto=document.getElementById("textoIA").value.trim();
 
-if(texto.trim()===""){
-alert("Digite o conteúdo.");
+if(texto===""){
+alert("Digite algo.");
 return;
 }
 
-let doc=new jsPDF();
-doc.text(texto,10,10);
-doc.save("trabalho_ecoprint.pdf");
+let resposta="";
+
+if(texto.toLowerCase().includes("capa")){
+resposta="Posso criar uma capa formatada para seu trabalho.";
+}
+else if(texto.toLowerCase().includes("resumo")){
+resposta="Posso gerar um resumo estruturado com introdução, desenvolvimento e conclusão.";
+}
+else{
+resposta="Posso organizar seu texto e formatar pronto para impressão.";
 }
 
+if(confirm(resposta+"\n\nDeseja transformar em PDF?")){
+let doc=new jsPDF();
+doc.setFontSize(12);
+doc.text(texto,10,20,{maxWidth:180});
+doc.save("EcoPrint_Trabalho.pdf");
+}
+}
 </script>
 
 </body>
