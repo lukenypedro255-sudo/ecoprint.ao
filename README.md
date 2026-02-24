@@ -9,30 +9,17 @@
 
 <style>
 *{
-box-sizing:border-box;
 margin:0;
 padding:0;
+box-sizing:border-box;
 }
 
 html,body{
 width:100%;
 overflow-x:hidden;
-font-family:Arial, sans-serif;
-}
-
-:root{
---verde:#0e8f61;
---bg-light:#f4f4f4;
---bg-dark:#121212;
---card-light:#ffffff;
---card-dark:#1e1e1e;
---text-light:#000;
---text-dark:#fff;
-}
-
-body{
-background:var(--bg-light);
-color:var(--text-light);
+font-family: 'Segoe UI', sans-serif;
+background:#0f0f0f;
+color:white;
 display:flex;
 justify-content:center;
 }
@@ -41,48 +28,68 @@ justify-content:center;
 width:100%;
 max-width:420px;
 min-height:100vh;
+background:#111;
 position:relative;
+display:flex;
+flex-direction:column;
 }
 
 header{
-background:var(--verde);
-color:white;
-padding:15px;
-display:flex;
-justify-content:space-between;
-align-items:center;
-flex-direction:column;
+background:linear-gradient(135deg,#0e8f61,#0a5f43);
+padding:20px;
 text-align:center;
+position:relative;
 }
 
 header h1{
-font-size:20px;
+font-size:22px;
 }
 
 #dataHora{
 font-size:13px;
+opacity:0.8;
 margin-top:5px;
+}
+
+.ecoia{
+position:absolute;
+top:15px;
+right:15px;
+width:55px;
+height:55px;
+border-radius:50%;
+background:white;
+color:#0e8f61;
+display:flex;
+justify-content:center;
+align-items:center;
+font-weight:bold;
+cursor:pointer;
+box-shadow:0 4px 10px rgba(0,0,0,0.4);
 }
 
 .container{
 padding:15px;
+flex:1;
 }
 
 .card{
-background:var(--card-light);
+background:#1b1b1b;
 padding:15px;
-border-radius:12px;
+border-radius:15px;
 margin-bottom:15px;
-box-shadow:0 4px 8px rgba(0,0,0,0.05);
+box-shadow:0 5px 15px rgba(0,0,0,0.3);
 }
 
 input,select,textarea{
 width:100%;
 padding:12px;
 margin-top:10px;
-border-radius:8px;
-border:1px solid #ddd;
-font-size:15px;
+border-radius:10px;
+border:none;
+background:#2a2a2a;
+color:white;
+font-size:14px;
 }
 
 button{
@@ -90,63 +97,40 @@ width:100%;
 padding:14px;
 margin-top:15px;
 border:none;
-border-radius:8px;
-background:var(--verde);
+border-radius:10px;
+background:#0e8f61;
 color:white;
-font-size:16px;
+font-size:15px;
 font-weight:bold;
+cursor:pointer;
+transition:0.3s;
+}
+
+button:hover{
+background:#0a5f43;
 }
 
 #total{
 margin-top:10px;
+font-size:16px;
 font-weight:bold;
+color:#00ffae;
 }
 
-/* DARK MODE */
-.dark{
-background:var(--bg-dark);
-color:var(--text-dark);
-}
-
-.dark .card{
-background:var(--card-dark);
-}
-
-/* BOTÃO DARK */
 .toggleMode{
 position:fixed;
 bottom:20px;
 right:20px;
-width:55px;
-height:55px;
+width:60px;
+height:60px;
 border-radius:50%;
-background:var(--verde);
-color:white;
+background:#0e8f61;
 display:flex;
 justify-content:center;
 align-items:center;
-font-size:20px;
+font-size:22px;
 cursor:pointer;
-box-shadow:0 4px 10px rgba(0,0,0,0.3);
-}
-
-/* ECOIA */
-.ecoia{
-position:absolute;
-top:15px;
-right:15px;
-width:50px;
-height:50px;
-border-radius:50%;
-background:white;
-display:flex;
-justify-content:center;
-align-items:center;
-cursor:pointer;
-font-size:11px;
-font-weight:bold;
-color:#0e8f61;
-box-shadow:0 4px 8px rgba(0,0,0,0.2);
+box-shadow:0 4px 15px rgba(0,0,0,0.5);
 }
 
 .chat{
@@ -154,16 +138,31 @@ display:none;
 position:fixed;
 bottom:90px;
 right:20px;
-width:300px;
+width:320px;
 max-width:90%;
-background:white;
-border-radius:12px;
-box-shadow:0 4px 10px rgba(0,0,0,0.3);
-padding:10px;
+background:#1c1c1c;
+border-radius:15px;
+box-shadow:0 5px 15px rgba(0,0,0,0.5);
+padding:15px;
 }
 
 .chat textarea{
-height:80px;
+height:90px;
+resize:none;
+}
+
+.chatResposta{
+margin-top:10px;
+font-size:14px;
+color:#00ffae;
+}
+
+footer{
+background:#0a0a0a;
+text-align:center;
+padding:15px;
+font-size:13px;
+opacity:0.7;
 }
 </style>
 </head>
@@ -183,22 +182,34 @@ height:80px;
 <div class="card">
 <h3>Agendamento</h3>
 
-<input type="text" id="nome" placeholder="Seu Nome">
+<input type="text" placeholder="Seu Nome">
 <input type="number" id="paginas" placeholder="Número de Páginas">
 <select id="tipo">
 <option value="25">Preto e Branco (25 AOA)</option>
 <option value="50">Colorido (50 AOA)</option>
 </select>
 
-<input type="date" id="data">
-<input type="time" id="hora">
+<input type="date">
+<input type="time">
 
-<h3 id="total">Total: 0 AOA</h3>
+<select>
+<option>Pagamento por Transferência</option>
+<option>Pagamento por Multicaixa</option>
+<option>Pagamento por Referência</option>
+</select>
+
+<input type="tel" placeholder="Número do Responsável para Pagamento">
+
+<div id="total">Total: 0 AOA</div>
 
 <button onclick="confirmar()">Confirmar Pedido</button>
 </div>
 
 </div>
+
+<footer>
+Criadores: Lukeny, Gariel e Elmir
+</footer>
 
 </div>
 
@@ -206,82 +217,73 @@ height:80px;
 
 <!-- CHAT IA -->
 <div class="chat" id="chatBox">
-<textarea id="textoIA" placeholder="Faça uma pergunta ou escreva seu trabalho..."></textarea>
-<button onclick="responderIA()">Perguntar à EcoIA</button>
+<textarea id="textoIA" placeholder="Pergunte algo ou escreva seu trabalho..."></textarea>
+<button onclick="responderIA()">Perguntar</button>
+<div class="chatResposta" id="respostaIA"></div>
 </div>
 
 <script>
 const { jsPDF } = window.jspdf;
 
-/* DATA E HORA */
+/* DATA */
 function atualizarDataHora(){
 let agora=new Date();
-let texto=agora.toLocaleString('pt-PT',{
-day:'2-digit',
-month:'2-digit',
-year:'numeric',
-hour:'2-digit',
-minute:'2-digit',
-second:'2-digit'
-});
-document.getElementById("dataHora").innerText=texto;
+document.getElementById("dataHora").innerText=
+agora.toLocaleString("pt-PT");
 }
 setInterval(atualizarDataHora,1000);
-atualizarDataHora();
 
-/* CÁLCULO */
+/* TOTAL AUTOMÁTICO */
 document.getElementById("paginas").addEventListener("input",calcular);
 document.getElementById("tipo").addEventListener("change",calcular);
 
 function calcular(){
-let tipo=parseInt(document.getElementById("tipo").value);
 let paginas=parseInt(document.getElementById("paginas").value)||0;
-let total=tipo*paginas;
+let valor=parseInt(document.getElementById("tipo").value);
+let total=paginas*valor;
 document.getElementById("total").innerText="Total: "+total+" AOA";
 }
 
 /* CONFIRMAR */
 function confirmar(){
-alert("Agendamento confirmado ✅");
+alert("Pedido enviado com sucesso ✅");
 }
 
 /* DARK MODE */
 function toggleMode(){
-document.body.classList.toggle("dark");
+document.body.classList.toggle("light");
 }
 
 /* ECOIA */
 function abrirIA(){
 let chat=document.getElementById("chatBox");
-chat.style.display = chat.style.display==="block"?"none":"block";
+chat.style.display=chat.style.display==="block"?"none":"block";
 }
 
-/* IA SIMULADA INTELIGENTE */
+/* IA MAIS INTELIGENTE */
 function responderIA(){
-let texto=document.getElementById("textoIA").value.trim();
-
-if(texto===""){
-alert("Digite algo.");
-return;
-}
-
+let texto=document.getElementById("textoIA").value.toLowerCase();
 let resposta="";
 
-if(texto.toLowerCase().includes("capa")){
-resposta="Posso criar uma capa formatada para seu trabalho.";
+if(texto.includes("preço")){
+resposta="O preço depende do tipo de impressão. Preto e Branco custa 25 AOA por página e Colorido 50 AOA.";
 }
-else if(texto.toLowerCase().includes("resumo")){
-resposta="Posso gerar um resumo estruturado com introdução, desenvolvimento e conclusão.";
+else if(texto.includes("horário")){
+resposta="Funcionamos das 8h às 18h de segunda a sábado.";
+}
+else if(texto.includes("como imprimir")){
+resposta="Basta preencher o agendamento, escolher o tipo de impressão e confirmar.";
 }
 else{
-resposta="Posso organizar seu texto e formatar pronto para impressão.";
+resposta="Posso ajudar com informações sobre impressão, preços, horários ou formatar seu trabalho.";
 }
 
-if(confirm(resposta+"\n\nDeseja transformar em PDF?")){
+document.getElementById("respostaIA").innerText=resposta;
+
+if(confirm("Deseja transformar seu texto em PDF formatado?")){
 let doc=new jsPDF();
-doc.setFontSize(12);
-doc.text(texto,10,20,{maxWidth:180});
-doc.save("EcoPrint_Trabalho.pdf");
+doc.text(document.getElementById("textoIA").value,10,20,{maxWidth:180});
+doc.save("EcoPrint.pdf");
 }
 }
 </script>
